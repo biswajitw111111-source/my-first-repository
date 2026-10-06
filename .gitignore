@@ -1,0 +1,12 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.session
+*.session-journal
+.env
+.env.*
+!**/.env.example
+project_build.zip
+backend/telegram_accounts/*
+!backend/telegram_accounts/.gitkeep

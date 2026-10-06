@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10131a">
+    <title>Telegram Link Checker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Telegram Link Checker" data-i18n-aria="appTitle">
+          <span class="brand-mark" aria-hidden="true">↗</span>
+          <span data-i18n="appTitle">Telegram Link Checker</span>
+        </a>
+        <div class="topbar-tools">
+          <label class="visually-hidden" for="language" data-i18n="language">Language</label>
+          <select id="language" class="select-control">
+            <option value="en">English</option><option value="hi">हिन्दी</option>
+            <option value="bn">বাংলা</option><option value="ru">Русский</option>
+            <option value="zh">中文</option><option value="ja">日本語</option>
+            <option value="ko">한국어</option><option value="es">Español</option>
+            <option value="fr">Français</option><option value="ar">العربية</option>
+          </select>
+          <button id="settingsButton" class="icon-button" type="button" aria-label="Settings" title="Settings" data-i18n-aria="settings" data-i18n-title="settings">⚙</button>
+        </div>
+      </header>
+
+      <section class="welcome">
+        <div>
+          <p class="eyebrow">TELEGRAM · LINK VALIDATION</p>
+          <h1 data-i18n="modeTitle">Choose a checking mode</h1>
+          <p class="subheading" data-i18n="modeHint">Choose how links are checked before you begin.</p>
+        </div>
+        <div class="mode-grid" role="radiogroup" aria-label="Checking mode" data-i18n-aria="modeTitle">
+          <label class="mode-card selected" id="normalCard">
+            <input type="radio" name="mode" value="normal" checked>
+            <span class="mode-icon">◉</span>
+            <span class="mode-name" data-i18n="modeNormal">Normal Mode</span>
+            <span class="mode-description" data-i18n="normalDesc">No sign-in. Public links only; private links are skipped.</span>
+            <span class="mode-badge" data-i18n="privateFirst">Privacy first</span>
+          </label>
+          <label class="mode-card" id="premiumCard">
+            <input type="radio" name="mode" value="premium">
+            <span class="mode-icon">✦</span>
+            <span class="mode-name" data-i18n="modePremium">Premium Mode</span>
+            <span class="mode-description" data-i18n="premiumDesc">Sign in with your Telegram API credentials for deeper checks.</span>
+            <span class="mode-badge premium-badge" data-i18n="apiMode">Telegram API</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel input-panel" aria-labelledby="inputHeading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" data-i18n="stepOne">STEP 1 · INPUT</p>
+            <h2 id="inputHeading" data-i18n="inputTitle">Add Telegram links</h2>
+          </div>
+          <span id="inputStatus" class="status-pill" role="status" data-i18n="ready">Ready</span>
+        </div>
+        <label class="visually-hidden" for="rawInput" data-i18n="inputTitle">Add Telegram links</label>
+        <textarea id="rawInput" rows="6" data-i18n-placeholder="inputPlaceholder"
+          placeholder="Paste text containing t.me links here..."></textarea>
+        <div id="dropZone" class="drop-zone" tabindex="0">
+          <span class="upload-icon" aria-hidden="true">⇧</span>
+          <span data-i18n="dropText">Drop .txt or .csv files here, or</span>
+          <label class="file-picker" for="fileInput" data-i18n="browseFiles">browse files</label>
+          <input id="fileInput" type="file" accept=".txt,.csv,text/plain,text/csv" multiple>
+          <span id="fileNames" class="file-names" data-i18n="noFiles">No files selected</span>
+        </div>
+        <div class="input-actions">
+          <span id="linkCount" class="muted" data-i18n="notExtracted">Links have not been extracted</span>
+          <button id="extractButton" class="button button-secondary" type="button" data-i18n="extract">Extract links</button>
+        </div>
+        <div class="start-row">
+          <button id="startButton" class="button button-primary" type="button" disabled>
+            <span data-i18n="start">Start checking</span><span aria-hidden="true">→</span>
+          </button>
+          <span class="small-note" data-i18n="extractNote">Extract links first to preview duplicates and total count.</span>
+        </div>
+      </section>
+
+      <section class="panel run-panel" aria-labelledby="consoleHeading">
+        <div class="section-heading console-heading">
+          <div>
+            <p class="eyebrow" data-i18n="stepTwo">STEP 2 · LIVE CHECK</p>
+            <h2 id="consoleHeading" data-i18n="consoleTitle">Live console</h2>
+          </div>
+          <div class="run-status"><span id="runDot" class="run-dot"></span><span id="runStatus" data-i18n="idle">Idle</span></div>
+        </div>
+        <div id="console" class="console" role="log" aria-live="polite" aria-relevant="additions">
+          <p class="console-empty" data-i18n="consoleEmpty">Your live results will appear here.</p>
+        </div>
+        <div id="checkProgress" class="check-progress hidden">
+          <div id="progressTrack" class="progress-track" role="progressbar" aria-label="Check progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span id="progressBar"></span>
+          </div>
+          <span id="progressText" class="muted">0 / 0</span>
+        </div>
+        <div class="control-bar">
+          <button id="pauseButton" class="button button-secondary" type="button" disabled data-i18n="pause">Pause</button>
+          <button id="resumeButton" class="button button-secondary" type="button" disabled data-i18n="resume">Resume</button>
+          <button id="stopButton" class="button button-danger" type="button" disabled data-i18n="stop">Stop &amp; save</button>
+        </div>
+      </section>
+
+      <section id="downloadPanel" class="panel download-panel hidden" aria-labelledby="downloadHeading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" data-i18n="stepThree">STEP 3 · EXPORT</p>
+            <h2 id="downloadHeading" data-i18n="downloadTitle">Download results</h2>
+            <p class="muted" data-i18n="downloadHint">Choose the categories to include in your ZIP file.</p>
+          </div>
+        </div>
+        <div id="categoryOptions" class="category-grid"></div>
+        <div class="download-actions">
+          <button id="downloadButton" class="button button-primary" type="button" data-i18n="downloadZip">Download ZIP</button>
+        </div>
+      </section>
+      <footer><span data-i18n="localNote">Runs locally in your browser and on this computer.</span></footer>
+    </main>
+
+    <div id="settingsDialog" class="modal-backdrop hidden" role="presentation">
+      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsHeading">
+        <div class="modal-heading">
+          <div><p class="eyebrow" data-i18n="settings">SETTINGS</p><h2 id="settingsHeading" data-i18n="metadataTitle">Metadata to display and export</h2></div>
+          <button class="icon-button close-dialog" type="button" data-dialog-close="settingsDialog" aria-label="Close" data-i18n-aria="closeLabel">×</button>
+        </div>
+        <p class="muted" data-i18n="metadataHint">Only selected fields are shown in the console and included in exports.</p>
+        <div class="metadata-options">
+          <label><input type="checkbox" value="link" checked> <span data-i18n="fieldLink">Link</span></label>
+          <label><input type="checkbox" value="name" checked> <span data-i18n="fieldName">Name</span></label>
+          <label><input type="checkbox" value="members" checked> <span data-i18n="fieldMembers">Members</span></label>
+          <label><input type="checkbox" value="adult" checked> <span data-i18n="fieldAdult">18+ label</span></label>
+        </div>
+        <div class="modal-actions"><button class="button button-primary close-dialog" type="button" data-dialog-close="settingsDialog" data-i18n="done">Done</button></div>
+      </section>
+    </div>
+
+    <div id="authDialog" class="modal-backdrop hidden" role="presentation">
+      <section class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="authHeading">
+        <div class="modal-heading">
+          <div><p class="eyebrow" data-i18n="secureSetup">PREMIUM MODE · SIGN-IN</p><h2 id="authHeading" data-i18n="authTitle">Connect your Telegram account</h2></div>
+          <button class="icon-button close-dialog" type="button" data-dialog-close="authDialog" aria-label="Close" data-i18n-aria="closeLabel">×</button>
+        </div>
+        <p class="muted" data-i18n="authNotice">Your credentials and session are stored locally in the backend folder. Never share this folder.</p>
+        <form id="authForm">
+          <div class="auth-fields">
+            <label><span data-i18n="apiId">API ID</span><input id="apiId" inputmode="numeric" autocomplete="off" required></label>
+            <label><span data-i18n="apiHash">API Hash</span><input id="apiHash" type="password" autocomplete="off" required></label>
+            <label><span data-i18n="phone">Phone number (international format)</span><input id="phone" type="tel" placeholder="+12345678900" autocomplete="tel" required></label>
+            <label id="codeGroup" class="hidden"><span data-i18n="loginCode">Telegram login code</span><input id="loginCode" autocomplete="one-time-code"></label>
+            <label id="passwordGroup" class="hidden"><span data-i18n="twoFactor">Two-step verification password</span><input id="twoFactorPassword" type="password" autocomplete="current-password"></label>
+          </div>
+          <p id="authMessage" class="form-message" role="status"></p>
+          <div class="modal-actions">
+            <button id="authBack" class="button button-secondary" type="button" data-i18n="back">Back</button>
+            <button class="button button-secondary close-dialog" type="button" data-dialog-close="authDialog" data-i18n="cancel">Cancel</button>
+            <button id="authSubmit" class="button button-primary" type="submit" data-i18n="sendCode">Send login code</button>
+          </div>
+        </form>
+      </section>
+    </div>
+    <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
